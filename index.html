@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="be">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Прымусовая праца ў месцах зняволення Беларусі — мапа сведчанняў</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
+
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #f59e0b;
+      --danger: #ef4444;
+      --line: #374151;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      padding: 22px 28px 16px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(90deg, #111827, #1f2937);
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      line-height: 1.25;
+    }
+
+    header p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 980px;
+      line-height: 1.45;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      min-height: calc(100vh - 105px);
+    }
+
+    aside {
+      padding: 18px;
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+      overflow: auto;
+    }
+
+    #map { min-height: calc(100vh - 105px); }
+
+    .stat-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .stat-card h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+
+    .metric {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
+    }
+
+    .metric:last-child { border-bottom: 0; }
+    .metric span:first-child { color: var(--muted); }
+    .metric span:last-child { font-weight: 700; }
+
+    label {
+      display: block;
+      margin: 10px 0 6px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input[type="search"], select {
+      width: 100%;
+      padding: 10px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #0b1220;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .legend {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: -1px;
+      background: var(--danger);
+    }
+
+    .dot.empty { background: #6b7280; }
+
+    .list-item {
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+    }
+
+    .list-item strong { display: block; }
+    .list-item small { color: var(--muted); }
+    .list-item:hover strong { color: var(--accent); }
+
+    .popup h3 {
+      margin: 0 0 8px;
+      font-size: 17px;
+    }
+
+    .popup p { margin: 5px 0; }
+    .popup .note { color: #4b5563; font-size: 12px; line-height: 1.35; }
+
+    @media (max-width: 850px) {
+      .layout { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--line); }
+      #map { min-height: 68vh; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Прымусовая праца ў месцах зняволення Беларусі</h1>
+    <p>Інтэрактыўная мапа сведчанняў: месцы зняволення, колькасць названых сум заробку і сярэдні памер заробку паводле апытаных рэспандэнтаў.</p>
+  </header>
+
+  <main class="layout">
+    <aside>
+      <section class="stat-card">
+        <h2>Зводка</h2>
+        <div class="metric"><span>Устаноў на мапе</span><span id="countInstitutions">—</span></div>
+        <div class="metric"><span>Устаноў з сумамі</span><span id="countWithWage">—</span></div>
+        <div class="metric"><span>Сярэдняе па ўстановах</span><span id="overallAvg">—</span></div>
+      </section>
+
+      <section class="stat-card">
+        <h2>Фільтры</h2>
+        <label for="search">Пошук па назве або месцы</label>
+        <input id="search" type="search" placeholder="Напрыклад: ІК-4 або Гомель" />
+
+        <label for="wageFilter">Заробак</label>
+        <select id="wageFilter">
+          <option value="all">Усе ўстановы</option>
+          <option value="has">Толькі з названым заробкам</option>
+          <option value="missing">Толькі без дакладнай сумы</option>
+          <option value="under5">Сярэдні заробак менш за 5 BYN</option>
+          <option value="under10">Сярэдні заробак менш за 10 BYN</option>
+        </select>
+      </section>
+
+      <section class="stat-card legend">
+        <h2>Легенда</h2>
+        <p><span class="dot"></span> ёсць хаця б адна названая сума заробку</p>
+        <p><span class="dot empty"></span> установа ёсць у анкетах, але дакладная сума не вынята/не названа</p>
+        <p>Памер круга залежыць ад сярэдняга заробку па гэтай установе.</p>
+      </section>
+
+      <section class="stat-card">
+        <h2>Установы</h2>
+        <div id="list"></div>
+      </section>
+    </aside>
+
+    <div id="map" aria-label="Мапа месцаў зняволення Беларусі"></div>
+  </main>
+
+  <script>
+    const map = L.map('map', { scrollWheelZoom: true }).setView([53.7, 28.1], 7);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markersLayer = L.layerGroup().addTo(map);
+    let allRows = [];
+    let markerByInstitution = new Map();
+
+    function parseNumber(value) {
+      if (value === undefined || value === null || value === '') return null;
+      const n = Number(String(value).replace(',', '.'));
+      return Number.isFinite(n) ? n : null;
+    }
+
+    function wageLabel(row) {
+      const avg = parseNumber(row.avg_byn);
+      if (avg === null) return 'няма дакладнай сумы';
+      return `${avg.toFixed(2)} BYN`;
+    }
+
+    function markerRadius(row) {
+      const avg = parseNumber(row.avg_byn);
+      if (avg === null) return 8;
+      return Math.max(8, Math.min(28, 7 + Math.sqrt(avg) * 3));
+    }
+
+    function markerColor(row) {
+      return parseNumber(row.avg_byn) === null ? '#6b7280' : '#ef4444';
+    }
+
+    function popupHtml(row) {
+      return `
+        <div class="popup">
+          <h3>${row.institution}</h3>
+          <p><strong>Месца:</strong> ${row.place}</p>
+          <p><strong>Сярэдні заробак:</strong> ${wageLabel(row)}</p>
+          <p><strong>Колькасць названых сум:</strong> ${row.n_values || 0}</p>
+          <p><strong>Названыя сумы:</strong> ${row.values_byn || 'няма'}</p>
+          <p class="note">${row.notes || ''}</p>
+        </div>
+      `;
+    }
+
+    function passFilters(row) {
+      const query = document.getElementById('search').value.trim().toLowerCase();
+      const filter = document.getElementById('wageFilter').value;
+      const avg = parseNumber(row.avg_byn);
+      const haystack = `${row.institution} ${row.place} ${row.notes}`.toLowerCase();
+
+      if (query && !haystack.includes(query)) return false;
+      if (filter === 'has' && avg === null) return false;
+      if (filter === 'missing' && avg !== null) return false;
+      if (filter === 'under5' && !(avg !== null && avg < 5)) return false;
+      if (filter === 'under10' && !(avg !== null && avg < 10)) return false;
+      return true;
+    }
+
+    function render() {
+      markersLayer.clearLayers();
+      markerByInstitution = new Map();
+      const visibleRows = allRows.filter(passFilters);
+
+      visibleRows.forEach(row => {
+        const lat = parseNumber(row.lat);
+        const lon = parseNumber(row.lon);
+        if (lat === null || lon === null) return;
+
+        const marker = L.circleMarker([lat, lon], {
+          radius: markerRadius(row),
+          color: '#ffffff',
+          weight: 1,
+          fillColor: markerColor(row),
+          fillOpacity: 0.82
+        }).bindPopup(popupHtml(row));
+
+        marker.addTo(markersLayer);
+        markerByInstitution.set(row.institution, marker);
+      });
+
+      const list = document.getElementById('list');
+      list.innerHTML = '';
+      visibleRows
+        .sort((a, b) => (parseNumber(a.avg_byn) ?? 9999) - (parseNumber(b.avg_byn) ?? 9999))
+        .forEach(row => {
+          const item = document.createElement('div');
+          item.className = 'list-item';
+          item.innerHTML = `<strong>${row.institution} — ${wageLabel(row)}</strong><small>${row.place}</small>`;
+          item.addEventListener('click', () => {
+            const marker = markerByInstitution.get(row.institution);
+            if (marker) {
+              map.setView(marker.getLatLng(), 10);
+              marker.openPopup();
+            }
+          });
+          list.appendChild(item);
+        });
+    }
+
+    function updateStats() {
+      const withWage = allRows.filter(row => parseNumber(row.avg_byn) !== null);
+      const avg = withWage.reduce((sum, row) => sum + parseNumber(row.avg_byn), 0) / withWage.length;
+      document.getElementById('countInstitutions').textContent = allRows.length;
+      document.getElementById('countWithWage').textContent = withWage.length;
+      document.getElementById('overallAvg').textContent = Number.isFinite(avg) ? `${avg.toFixed(2)} BYN` : '—';
+    }
+
+    Papa.parse('data.csv', {
+      download: true,
+      header: true,
+      skipEmptyLines: true,
+      complete: results => {
+        allRows = results.data;
+        updateStats();
+        render();
+      }
+    });
+
+    document.getElementById('search').addEventListener('input', render);
+    document.getElementById('wageFilter').addEventListener('change', render);
+  </script>
+</body>
+</html>
