@@ -3,57 +3,98 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Прымусовая праца ў месцах зняволення Беларусі — мапа сведчанняў</title>
+  <title>Belarus Digital Human Rights Lab</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <header class="site-header">
-    <div>
-      <p class="eyebrow">Лічбавая праваабарончая лабараторыя</p>
-      <h1>Прымусовая праца ў месцах зняволення Беларусі</h1>
-      <p class="subtitle">Інтэрактыўная мапа сведчанняў пра заробкі, працу і ўмовы ў беларускіх калоніях.</p>
+    <nav class="top-nav" aria-label="Main navigation">
+      <a href="#home">Home</a>
+      <a href="#module">Current module</a>
+      <a href="#map">Map</a>
+      <a href="#data">Data</a>
+      <a href="#about">About</a>
+    </nav>
+    <div class="language-switcher" aria-label="Language switcher">
+      <button type="button" class="language-button active">Бел</button>
+      <button type="button" class="language-button">Eng</button>
+      <button type="button" class="language-button">Рус</button>
     </div>
   </header>
 
-  <main class="layout">
-    <aside class="panel">
-      <h2>Фільтры</h2>
-      <label class="filter-row">
-        <input type="checkbox" id="filterHasWage" />
-        Паказаць толькі ўстановы з названым заробкам
-      </label>
-      <label class="filter-row">
-        <input type="checkbox" id="filterLowWage" />
-        Сярэдні заробак менш за 10 BYN
-      </label>
-      <button id="resetFilters">Скінуць фільтры</button>
-      <hr />
-      <h2>Кароткая зводка</h2>
-      <div id="summary" class="summary">Загрузка даных…</div>
-      <p class="note">Публічная версія не павінна ўтрымліваць імёны, дакладныя даты этапавання і іншыя ідэнтыфікатары рэспандэнтаў.</p>
-    </aside>
+  <main id="home">
+    <section class="hero">
+      <p class="eyebrow">Belarus Digital Human Rights Lab</p>
+      <h1>Belarus Digital Human Rights Lab</h1>
+      <p class="hero-text">
+        Open digital platform for documenting, preserving, analysing and visualising verified evidence of human rights violations in Belarus.
+      </p>
+      <p class="hero-note">
+        The platform combines research, interactive maps, legal analysis, open data and responsible use of digital technologies to support accountability, public awareness and evidence-based advocacy.
+      </p>
+    </section>
 
-    <section class="map-section">
-      <div id="map"></div>
+    <section id="module" class="module-intro">
+      <p class="section-label">Current module</p>
+      <h2>Forced Labour in Places of Detention</h2>
+      <p>
+        Research module dedicated to documenting prison labour, wages, occupational safety, food, pension rights and production linked to military supply chains in Belarusian places of detention.
+      </p>
+    </section>
+
+    <section class="map-layout" aria-label="Forced labour map module">
+      <aside class="panel">
+        <h2>Filters</h2>
+        <label class="filter-row">
+          <input type="checkbox" id="filterHasWage" />
+          Show only institutions with wage data
+        </label>
+        <label class="filter-row">
+          <input type="checkbox" id="filterLowWage" />
+          Average wage below 10 BYN
+        </label>
+        <button id="resetFilters">Reset filters</button>
+        <hr />
+        <h2>Summary</h2>
+        <div id="summary" class="summary">Loading data…</div>
+        <p class="note">
+          Public data must not contain names, direct identifiers, precise transfer dates or combinations of facts that could identify respondents.
+        </p>
+      </aside>
+
+      <section class="map-section">
+        <div id="map"></div>
+      </section>
+    </section>
+
+    <section id="data" class="table-wrap">
+      <h2>Institution-level data</h2>
+      <p class="section-description">
+        Demonstration dataset based on anonymised survey-derived wage indicators. Values should be treated as research data requiring source verification and methodological notes.
+      </p>
+      <table id="dataTable">
+        <thead>
+          <tr>
+            <th>Institution</th>
+            <th>Place</th>
+            <th>Average named wage, BYN</th>
+            <th>Number of values</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section id="about" class="about-block">
+      <h2>About this platform</h2>
+      <p>
+        This website is an early prototype of the Belarus Digital Human Rights Lab. The first module focuses on forced labour in places of detention. Future development may include additional human rights modules, multilingual content, methodology documentation and open datasets.
+      </p>
+      <p class="copyright">© 2026 Belarus Digital Human Rights Lab. All rights reserved unless otherwise stated.</p>
     </section>
   </main>
-
-  <section class="table-wrap">
-    <h2>Даныя па ўстановах</h2>
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>Установа</th>
-          <th>Месца</th>
-          <th>Сярэдні заробак, BYN</th>
-          <th>Колькасць значэнняў</th>
-          <th>Заўвагі</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </section>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/map.js"></script>

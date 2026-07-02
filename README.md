@@ -2,7 +2,7 @@
 
 **Belarus Digital Human Rights Lab** is an open digital platform for documenting, preserving, analysing and visualising verified evidence of human rights violations in Belarus.
 
-The project combines research, interactive maps, legal analysis, open data and responsible use of digital technologies to support accountability, public awareness and evidence-based advocacy.
+The platform combines research, interactive maps, legal analysis, open data and responsible use of digital technologies to support accountability, public awareness and evidence-based advocacy.
 
 ---
 
@@ -27,13 +27,32 @@ It aims to document and analyse:
 
 ## Project Status
 
-**Current stage:** Early development (Version 0.1)
+**Version:** 0.2 (Early Development)
 
-The project architecture is currently being designed. New functionality will be added gradually.
+The project architecture is currently being designed. New functionality and datasets will be added incrementally.
 
 ---
 
-## Planned Components
+## Current Repository Structure
+
+The repository currently contains the initial project framework.
+
+```text
+README.md      Project overview
+index.html     Initial web interface
+css/           Stylesheets
+data/          Public demonstration data
+js/            JavaScript modules
+images/        Images and graphics
+reports/       Public reports
+prison/        Future institution profile pages
+```
+
+The repository structure will evolve as the platform grows.
+
+---
+
+## Planned Features
 
 - Interactive map of correctional institutions
 - Prison profiles
@@ -45,8 +64,8 @@ The project architecture is currently being designed. New functionality will be 
 - Military production research
 - Legal analysis
 - Research reports
+- Interactive visualisations
 - Open datasets
-- Data visualisation
 
 ---
 
@@ -60,9 +79,7 @@ The platform is being developed in three languages:
 
 ---
 
-## Principles
-
-The project follows several core principles:
+## Core Principles
 
 - Evidence before opinion
 - Accuracy before speed
@@ -75,12 +92,23 @@ The project follows several core principles:
 
 ## Roadmap
 
-- Build the interactive map.
-- Develop the testimony database.
-- Publish analytical reports.
-- Create interactive visualisations.
-- Develop AI-assisted research tools.
-- Expand the platform with additional human rights modules.
+### Phase 1
+
+- Interactive prison map
+- Prison database
+- Testimony database
+
+### Phase 2
+
+- Research reports
+- Data visualisation
+- Statistical analysis
+
+### Phase 3
+
+- AI-assisted research tools
+- Open data portal
+- Additional human rights modules
 
 ---
 
